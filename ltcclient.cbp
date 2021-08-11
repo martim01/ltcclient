@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="ltcclient" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/ltcclient" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<ExtraCommands>
+					<Add after="sudo setcap cap_sys_time,cap_net_bind_service+ep /home/pi/ltcclient/bin/Debug/ltcclient" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/ltcclient" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-std=c++1y" />
+			<Add option="-fexceptions" />
+			<Add option="-fpermissive" />
+			<Add option="-pthread" />
+			<Add directory="include" />
+			<Add directory="../log/include" />
+		</Compiler>
+		<Linker>
+			<Add library="portaudio" />
+		</Linker>
+		<Unit filename="../log/src/log.cpp" />
+		<Unit filename="include/audioinput.h" />
+		<Unit filename="include/decoder.h" />
+		<Unit filename="include/encoder.h" />
+		<Unit filename="include/linearregression.h" />
+		<Unit filename="include/ltc.h" />
+		<Unit filename="include/ltcdecoder.h" />
+		<Unit filename="include/offset.h" />
+		<Unit filename="include/utils.h" />
+		<Unit filename="src/audioinput.cpp" />
+		<Unit filename="src/decoder.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/encoder.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/ltc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/ltcdecoder.cpp" />
+		<Unit filename="src/main.cpp" />
+		<Unit filename="src/offset.cpp" />
+		<Unit filename="src/timecode.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/utils.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
