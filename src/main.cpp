@@ -11,35 +11,60 @@
 #include <cstring>
 #include "offset.h"
 #include "utils.h"
+#include <signal.h>
+#include <execinfo.h>
+#include <unistd.h>
 
 using namespace std;
 
+bool g_bRun = true;
 
-
-
-
-void SetTime(const std::chrono::time_point<std::chrono::system_clock>& tp)
+static void sig(int signo)
 {
-    timespec tv;
-    tv.tv_sec = std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch()).count();
-    tv.tv_nsec =std::chrono::duration_cast<std::chrono::nanoseconds>(tp.time_since_epoch()).count() % 1000000000;
+        switch (signo)
+        {
+            case SIGSEGV:
+            {
+                void* arr[10];
+                size_t nSize = backtrace(arr, 10);
 
-    auto local = std::chrono::system_clock::now();
-    if(clock_settime(CLOCK_REALTIME, &tv) != 0)
-    {
-        pmlLog(pml::LOG_ERROR) << "Failed to hard crash " <<strerror(errno);
-    }
-    else
-    {
-        auto offset = std::chrono::system_clock::now()-local;
-        pmlLog() << ConvertTimeToIsoString(tp) << "\tAdjustment = " << std::setw(6) << std::setfill(' ') << std::chrono::duration_cast<std::chrono::microseconds>(offset).count() << "us";
-    }
+                pmlLog(pml::LOG_CRITICAL)  << "Segmentation fault, aborting. " << nSize << std::endl;
+                for(size_t i = 0; i < nSize; i++)
+                {
+                    pmlLog(pml::LOG_CRITICAL)  << std::hex << "0x" << reinterpret_cast<int>(arr[i]) <<std::endl;
+                }
 
+                _exit(1);
+            }
+        case SIGTERM:
+        case SIGINT:
+	    case SIGQUIT:
+            {
+                if (g_bRun)
+                {
+                    pmlLog(pml::LOG_WARN)  << "User abort" << std::endl;
+                }
+                g_bRun = false;
+            }
+	    break;
+        }
+
+}
+
+void init_signals()
+{
+    signal (SIGTERM, sig);
+    signal (SIGINT, sig);
+    signal (SIGSEGV, sig);
+    signal (SIGQUIT, sig);
 }
 
 
 int main()
 {
+    init_signals();
+
+
     std::mutex mainMutex;
     std::condition_variable mainCv;
 
@@ -62,7 +87,7 @@ int main()
     bool bLocked(false);
     bool bSynced(false);
 
-    while(true)
+    while(g_bRun)
     {
         std::unique_lock<std::mutex> lk(mainMutex);
         mainCv.wait(lk, [&ai]{ return ai.IsReady();});
@@ -92,7 +117,6 @@ int main()
             }
         }while(ai.RemoveFrame());
     }
-
 
     return 0;
 }
