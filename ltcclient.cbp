@@ -24,11 +24,16 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-std=c++1y" />
 				</Compiler>
 				<Linker>
+					<Add option="-O3" />
 					<Add option="-s" />
 				</Linker>
+				<ExtraCommands>
+					<Add after="sudo setcap cap_sys_time,cap_net_bind_service+ep /home/pi/ltcclient/bin/Release/ltcclient" />
+					<Mode after="always" />
+				</ExtraCommands>
 			</Target>
 		</Build>
 		<Compiler>
