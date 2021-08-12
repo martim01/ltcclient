@@ -8,7 +8,7 @@
 #include "utils.h"
 
 
-Offset::Offset() : m_dFPS(0.0), m_bSlewing(false)
+Offset::Offset() : m_dFPS(0.0), m_bSlewing(false), m_bSynced(false)
 {
 
 }
@@ -55,7 +55,7 @@ void Offset::WorkoutLR()
     pmlLog() << "------------------------------------------------------- a=" << ab.first << "\tb=" << ab.second << " ppm";
 
 
-    if(ab.second > -1.0 && ab.second < 1.0)
+    if(ab.second > -0.8 && ab.second < 0.8)
     {
         auto av = -GetAverage();
         if(av < -0.5 || av > 0.5)
@@ -128,6 +128,11 @@ void Offset::WorkoutLR()
         {
             pmlLog() << "Still adjusting "  << tvOld.tv_sec << "s and " << tvOld.tv_usec << "us";
         }
+    }
+
+    if(!m_bSlewing)
+    {
+        m_bSynced = (ab.first > -1e-4 && ab.first < 1e-4 && ab.second > -1.0 && ab.second < 1.0);
     }
 }
 

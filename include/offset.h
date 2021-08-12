@@ -9,6 +9,8 @@ class Offset
         std::pair<bool, double> Add(std::chrono::microseconds offset, unsigned char nFrame, double dFPS);
         void ClearData();
 
+        bool IsSynced() const { return m_bSynced;}
+
     private:
         void WorkoutLR();
         double GetAverage();
@@ -23,4 +25,5 @@ class Offset
         size_t m_nFrame;
 
         bool m_bSlewing;
+        bool m_bSynced;
 };
