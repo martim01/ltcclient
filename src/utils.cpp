@@ -20,6 +20,6 @@ std::string ConvertTimeToIsoString(std::chrono::time_point<std::chrono::system_c
 
 std::chrono::microseconds DoubleToMicro(double dDuration)
 {
-    return std::chrono::microseconds(static_cast<int>(dDuration*1e6));
+    return std::chrono::microseconds(static_cast<long long>(dDuration*1e6));
 
 }
