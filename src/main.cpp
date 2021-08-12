@@ -59,22 +59,36 @@ int main()
     Offset data;
 
     pmlLog(pml::LOG_TRACE) << "Start loop";
+    bool bLocked(false);
+    bool bSynced(false);
+
     while(true)
     {
         std::unique_lock<std::mutex> lk(mainMutex);
         mainCv.wait(lk, [&ai]{ return ai.IsReady();});
-
         do
         {
             auto decode = ltc.DecodeLtc(ai.GetNextFrame());
             if(decode.first)
             {
-                auto crashed = data.Add(decode.second, 0, ltc.GetFPS());
-                if(crashed.first)
+                if(bLocked == false)
                 {
-                    ai.OffsetOpenTime(crashed.second);
+                    pmlLog() << "Locked to LTC";
+                    bLocked = true;
                 }
 
+                auto crashed = data.Add(decode.second, 0, ltc.GetFPS());
+
+                if(data.IsSynced() && !bSynced)
+                {
+                    pmlLog() << "Synced to LTC";
+                    bSynced =true;
+                }
+                else if(!data.IsSynced() && bSynced)
+                {
+                    pmlLog(pml::LOG_WARN) << "Lost sync to LTC";
+                    bSynced = false;
+                }
             }
         }while(ai.RemoveFrame());
     }
